@@ -20,5 +20,8 @@ yarn-error.log*
 *.swo
 *~
 
+# Internal documentation
+PRD.md
+
 # Debug files (keep in repo for troubleshooting)
 # debug-*.js files are intentionally included for debugging purposes 
