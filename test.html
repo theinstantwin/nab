@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Downloader Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-image {
+            margin: 10px;
+            border: 2px dashed #ccc;
+            padding: 10px;
+            display: inline-block;
+        }
+        img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 4px;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .long-page {
+            height: 200vh;
+            background: linear-gradient(to bottom, #fff, #f0f0f0);
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h2>🧪 Extension Test Page</h2>
+        <p><strong>Instructions:</strong></p>
+        <ol>
+            <li>Open browser console (F12) to see debug messages</li>
+            <li>Try dragging each image below</li>
+            <li>Look for blue outline that should appear around the image</li>
+            <li>Drag at least 50px to trigger download</li>
+            <li>Check console for any error messages</li>
+        </ol>
+        <p><strong>Expected behavior:</strong> Blue outline → Green outline → Download notification</p>
+    </div>
+
+    <div class="test-section">
+        <h3>✅ Test 1: Simple Images (Same Domain)</h3>
+        <div class="test-image">
+            <p>SVG Test Image:</p>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%23ff6b6b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-family='Arial' font-size='14'%3ETEST%3C/text%3E%3C/svg%3E" alt="Test SVG">
+        </div>
+        
+        <div class="test-image">
+            <p>Data URL PNG:</p>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" width="100" height="100" style="background: #4ecdc4;" alt="Test PNG">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🌐 Test 2: External Images (Cross-Origin)</h3>
+        <div class="test-image">
+            <p>External Image (might open in new tab):</p>
+            <img src="https://via.placeholder.com/150x150/ff9f43/ffffff?text=External" alt="External Image">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📏 Test 3: Different Sizes</h3>
+        <div class="test-image">
+            <p>Small Image:</p>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Ccircle cx='25' cy='25' r='20' fill='%2374b9ff'/%3E%3C/svg%3E" alt="Small">
+        </div>
+        
+        <div class="test-image">
+            <p>Large Image:</p>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect width='300' height='200' fill='%2355a3ff'/%3E%3Ctext x='150' y='105' text-anchor='middle' fill='white' font-family='Arial' font-size='18'%3ELarge Image%3C/text%3E%3C/svg%3E" alt="Large">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📜 Test 4: Scrolling Test</h3>
+        <p>Scroll down and try dragging the image below to test outline positioning during scroll:</p>
+        <div class="long-page">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                <div class="test-image">
+                    <p>Scroll Test Image:</p>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100'%3E%3Crect width='200' height='100' fill='%23feca57'/%3E%3Ctext x='100' y='55' text-anchor='middle' fill='white' font-family='Arial' font-size='16'%3EScroll Test%3C/text%3E%3C/svg%3E" alt="Scroll Test">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🚨 Test 5: Error Cases</h3>
+        <div class="test-image">
+            <p>Broken Image (should show error):</p>
+            <img src="https://nonexistent-domain-12345.com/broken.jpg" alt="Broken Image" style="width: 150px; height: 100px; background: #ff6b6b; display: flex; align-items: center; justify-content: center; color: white;">
+        </div>
+        
+        <div class="test-image">
+            <p>Empty Source Image:</p>
+            <img src="" alt="Empty" style="width: 100px; height: 100px; background: #ddd; border: 1px solid #999;">
+        </div>
+    </div>
+
+    <script>
+        // Enable debug mode automatically for testing
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Test page loaded - Extension should initialize');
+            console.log('📋 Test images available:', document.querySelectorAll('img').length);
+            
+            // Try to enable debug mode if extension is loaded
+            setTimeout(() => {
+                if (window.ImageDownloader) {
+                    console.log('✅ Extension detected - debug mode should be enabled');
+                } else {
+                    console.log('❌ Extension not detected - check if it\'s loaded');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 
