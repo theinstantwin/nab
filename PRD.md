@@ -157,6 +157,26 @@ Every proposed feature must pass the "Unix test":
 - **Performance monitoring** to prevent regression
 - **Clear documentation** for users and developers
 
+#### Commit Message Standards
+All commits should focus on technical changes made to files, not philosophical concepts:
+
+**Good Examples:**
+- `"Fix race condition in draggedImage timeout handling"`
+- `"Add comprehensive error handling to download methods"`
+- `"Refactor to class-based architecture for better maintainability"`
+- `"Update manifest.json with new icons and permissions"`
+- `"Remove PRD from public README project structure"`
+
+**Avoid:**
+- References to "Unix philosophy" or design philosophy
+- Marketing language or feature promotion
+- Vague descriptions like "improvements" or "updates"
+
+**Format:** `"[Action] [specific change] [optional: reason/impact]"`
+- Action: Fix, Add, Update, Remove, Refactor, etc.
+- Be specific about what files/functions were changed
+- Focus on the technical "what" not the conceptual "why"
+
 ### Conclusion
 
 This extension successfully demonstrates that following Unix philosophy in modern web development creates superior user experiences. By focusing exclusively on drag-to-download functionality, we've created a tool that:

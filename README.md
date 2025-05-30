@@ -63,10 +63,7 @@ A Chrome extension that makes downloading images effortless. Just drag any image
 │   └── icon128.png
 ├── README.md              # This documentation
 ├── TROUBLESHOOTING.md     # Debug guide
-├── test.html              # Local testing page
-├── debug-checker.js       # General debugging utility
-├── mattdesiena-debug.js   # Site-specific debug tool
-└── anildash-debug.js      # Blog site debug analysis
+└── test.html              # Local testing page
 ```
 
 ## 🧪 Testing
