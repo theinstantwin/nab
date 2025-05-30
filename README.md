@@ -1,82 +1,69 @@
-# Drag to Download Images - Chrome Extension
+# Nab - Drag to Download Images
 
-A minimalist Chrome extension that enables instant image downloading through intuitive drag gestures. Following the Unix philosophy of "do one thing and do one thing well."
+A Chrome extension that makes downloading images effortless. Just drag any image to download it instantly.
 
 ## ✨ Features
 
-- **Drag & Download**: Click and drag any `<img>` element beyond 50px to download instantly
-- **Visual Feedback**: Progressive blue outline that turns green when ready to download
+- **Drag & Download**: Click and drag any image beyond 50px to download instantly
+- **Visual Feedback**: Blue outline that turns green when ready to download
 - **Smart Error Handling**: Clear notifications for success and failure states
-- **Zero Configuration**: Works immediately after installation
-- **Cross-Site Compatible**: Functions on all websites without permission prompts
+- **Zero Setup**: Works immediately after installation
+- **Universal**: Functions on all websites without permission prompts
 - **Lightweight**: Single content script, no external dependencies
-- **Accessibility**: ESC key cancellation support
+- **Accessible**: ESC key cancellation support
 
-## 🚀 Installation
+## 🚀 Quick Start
 
-### From Source (Developer Mode)
-1. Clone or download this repository
-2. Open Chrome and navigate to `chrome://extensions/`
+### Installation
+1. Download or clone this repository
+2. Open Chrome and go to `chrome://extensions/`
 3. Enable "Developer mode" in the top right corner
 4. Click "Load unpacked" and select the extension directory
-5. The extension is now ready to use!
+5. Start dragging images to download them!
 
-### Usage Instructions
+### How to Use
 1. **Navigate** to any webpage with images
-2. **Click and hold** on any `<img>` element
+2. **Click and hold** on any image
 3. **Drag** the image in any direction for at least 50 pixels
 4. **Watch** for the blue outline to turn green
 5. **Release** to download - you'll see a success animation and notification
-6. **Press ESC** at any time to cancel the operation
+6. **Press ESC** at any time to cancel
 
-## 🎯 Design Philosophy
+## 🎯 What It Does
 
-This extension exemplifies the Unix philosophy:
-- **Single Responsibility**: Downloads images from `<img>` elements, nothing more
-- **Zero Configuration**: No settings, preferences, or setup required
-- **Universal Compatibility**: Works consistently across all websites
-- **Minimal Footprint**: Tiny performance impact, clean codebase
-
-## ⚠️ Scope & Limitations
-
-### What It Does
+### Supported
 - Downloads images from HTML `<img>` elements
 - Provides visual feedback during drag operations
 - Handles cross-origin images gracefully (opens in new tab)
 - Works with data URLs and standard image formats
 
-### What It Doesn't Do
+### Not Supported
 - **Background images** (CSS `background-image` properties)
 - **SVG graphics** or inline SVGs
-- **Embedded videos** or other media types
+- **Videos** or other media types
 - **Bulk downloads** or batch operations
-- **Image editing** or format conversion
-- **Custom download locations** or organization
-
-### Browser Compatibility
-- **Chrome 88+** (Manifest V3 support required)
-- **All websites** - no site-specific code or restrictions
 
 ## 🛠️ Technical Details
 
-- **Architecture**: ES6 class-based, modular design
-- **Manifest**: V3 compliance with minimal permissions
+- **Architecture**: ES6 class-based design
+- **Manifest**: V3 compliant with minimal permissions
 - **Performance**: <2MB memory footprint, <1% CPU usage
-- **Error Handling**: Comprehensive try-catch with detailed logging
+- **Error Handling**: Comprehensive error management
 - **Debug Mode**: Built-in debugging (set `debugMode = true` in content.js)
 
 ## 📁 Project Structure
 
 ```
-├── manifest.json          # Extension configuration (Manifest V3)
-├── content.js             # Main functionality (500+ lines, fully documented)
-├── icons/                 # Extension icons (16px, 48px, 128px)
+├── manifest.json          # Extension configuration
+├── content.js             # Main functionality
+├── icons/                 # Extension icons
 │   ├── icon16.png
+│   ├── icon32.png
 │   ├── icon48.png
 │   └── icon128.png
 ├── README.md              # This documentation
-├── PRD.md                 # Product Requirements Document
-├── TROUBLESHOOTING.md     # Debug guide and common issues
+├── PRD.md                 # Product requirements
+├── TROUBLESHOOTING.md     # Debug guide
 └── test.html              # Local testing page
 ```
 
@@ -88,10 +75,10 @@ This extension exemplifies the Unix philosophy:
 3. Enable debug mode to see detailed console output
 
 ### Real-World Testing
-- **Google Images**: Search results work perfectly
-- **Wikipedia**: Article images download reliably  
+- **Google Images**: Works perfectly
+- **Wikipedia**: Reliable downloads
 - **News sites**: Mixed results (many use background images)
-- **Social media**: Varies by platform implementation
+- **Social media**: Varies by platform
 
 ## 🔧 Troubleshooting
 
@@ -112,11 +99,11 @@ See `TROUBLESHOOTING.md` for comprehensive debugging guide.
 
 ### v2.0.0 (Current)
 - **Major refactor**: Class-based architecture for better maintainability
-- **Bug fix**: Resolved race condition causing "draggedImage became null" errors
-- **Enhanced error handling**: Comprehensive try-catch with specific error messages
+- **Bug fix**: Resolved race condition causing download failures
+- **Enhanced error handling**: Comprehensive error management
 - **Improved UI**: Better animations and user feedback
 - **Performance optimization**: Reduced memory usage and CPU impact
-- **Documentation**: Complete README, PRD, and troubleshooting guides
+- **Documentation**: Complete guides and troubleshooting
 
 ### v1.0.0 (Legacy)
 - Initial drag-to-download functionality
@@ -125,7 +112,7 @@ See `TROUBLESHOOTING.md` for comprehensive debugging guide.
 ## 🤝 Contributing
 
 Contributions are welcome! Please:
-1. **Maintain the minimalist philosophy** - resist feature creep
+1. **Keep it simple** - maintain the focused approach
 2. **Follow the existing code style** - ES6 classes, comprehensive error handling
 3. **Test thoroughly** - ensure compatibility across different sites
 4. **Document changes** - update README and comments
@@ -142,4 +129,4 @@ MIT License - Feel free to modify and distribute.
 
 ## 🙏 Acknowledgments
 
-Built following web extension best practices and inspired by the Unix philosophy of creating focused, reliable tools that do one thing exceptionally well. 
+Built following web extension best practices for creating focused, reliable tools. 

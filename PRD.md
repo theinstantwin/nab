@@ -1,17 +1,17 @@
 # Product Requirements Document (PRD)
-## Drag to Download Images - Chrome Extension v2.0
+## Nab - Drag to Download Images v2.0
 
 ### Executive Summary
-A Chrome extension that enables instant image downloading through intuitive drag gestures, embodying the Unix philosophy of "do one thing and do one thing well." The extension transforms the cumbersome right-click → save process into a simple, visual drag interaction.
+A Chrome extension that enables instant image downloading through intuitive drag gestures. The extension transforms the cumbersome right-click → save process into a simple, visual drag interaction.
 
 ### Product Vision
 **"Make image downloading as natural as dragging a file to the trash."**
 
 We believe users should be able to grab any image and simply drag it to download, just like they would drag a file on their desktop. This extension eliminates friction while maintaining absolute simplicity.
 
-### Core Philosophy: Unix Principles Applied
+### Core Philosophy: Focused Design Principles
 
-#### 1. Do One Thing Well
+#### 1. Single Purpose Focus
 - **Scope**: Download images from HTML `<img>` elements
 - **Anti-scope**: No bulk operations, editing, organization, or media conversion
 - **Focus**: Perfect the single interaction of drag-to-download
@@ -21,7 +21,7 @@ We believe users should be able to grab any image and simply drag it to download
 - **No Configuration**: Installs and works immediately
 - **Predictable Behavior**: Same interaction pattern across all sites
 
-#### 3. Textual Interface (Applied to Web)
+#### 3. Clear Interface Design
 - **Clear Visual Language**: Progressive outline feedback (blue → green)
 - **Immediate Feedback**: Users know exactly when download will trigger
 - **Error Communication**: Clear success/failure notifications
