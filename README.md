@@ -1,8 +1,55 @@
 # Nab
 
-Chrome extension. Drag an image 50px and it downloads.
+Drag any image to download it. No right-click, no menu, no save dialog.
 
-## Files
+Click and hold an image, pull it about an inch, let go. A blue outline follows
+your cursor and turns green once you've dragged far enough. Release and the file
+is in your Downloads folder.
+
+## Install
+
+**From the Chrome Web Store** — *link coming once the listing is approved.*
+
+**Until then, install it manually.** Takes about a minute.
+
+1. Download this repo: green **Code** button above → **Download ZIP**, then
+   unzip it. (Remember where it lands. Chrome loads the extension from that
+   folder, so deleting it uninstalls Nab.)
+2. Open a new tab and go to `chrome://extensions`
+3. Turn on the **Developer mode** toggle
+4. Click **Load unpacked** and pick the unzipped folder
+5. Nab appears in your extensions list. Reload any tabs you already had open.
+
+To update later, download the new version and click the refresh icon on Nab's
+card at `chrome://extensions`.
+
+## About that permission warning
+
+Chrome will say Nab can "read and change all your data on all websites." Every
+extension that works on any page gets that warning, and it's worth knowing what
+Nab actually does with it.
+
+Nab watches for you dragging an image and hands that image's address to Chrome's
+own download manager. That's it. It has no way to send anything anywhere: no
+analytics, no account, no server, and no permission to store data. The code is
+right here, and it's two files.
+
+The alternative would be making you click a toolbar button on every page before
+dragging, which is slower than just right-clicking the image.
+
+## What it works on
+
+Regular images, from any site, including the ones served from a CDN. Filenames
+come out clean — `photo.jpg`, not `photo.jpg?w=800&q=75`.
+
+It can't reach background images set through CSS, images drawn into a canvas,
+or video. Clicking a linked image still follows the link, as it should.
+
+If a download fails, Nab tells you why instead of failing silently.
+
+---
+
+## For developers
 
 | File | Role |
 |-|-|
@@ -11,9 +58,9 @@ Chrome extension. Drag an image 50px and it downloads.
 | `background.js` | Service worker — runs the download |
 | `icons/` | 16/32/48/128 PNGs |
 
-No build step, no dependencies. Load unpacked at `chrome://extensions`.
+No build step, no dependencies.
 
-## Why the download is in the service worker
+### Why the download is in the service worker
 
 Content scripts can't save cross-origin images. Chrome ignores the `download`
 attribute on an `<a>` when the URL is another origin, so it navigates instead of
@@ -29,13 +76,13 @@ content.js  --{type:'nab-download', url, filename}-->  background.js
 The notification reports what comes back. A green outline means the threshold
 was crossed, not that the file landed.
 
-## Permissions
+### Permissions
 
 `downloads` to save the file. `content_scripts` on `<all_urls>` because the
 script has to be on the page to see the drag. No `host_permissions`, no
 `scripting`, no `storage`.
 
-## Known issues
+### Known issues
 
 `icons/*.png` have no transparency, so the icon renders as a white square on a
 dark toolbar. Clearing the white isn't enough: the artwork is an outline with a
