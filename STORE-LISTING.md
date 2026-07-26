@@ -106,6 +106,22 @@ Layout follows the house pattern from `feedly-highlighter/store-screenshots/`:
 inset browser frame on a soft diagonal gradient with a drop shadow, caption
 centered below the frame as a bold headline plus a lighter supporting line.
 
+### Known: the icon has a white background
+
+`icons/*.png` are fully opaque — every corner is `srgba(255,255,255,1)`, with no
+transparency in the alpha channel. On any surface that isn't white, the icon
+renders as a white square with the mark inside it, most visibly on a dark Chrome
+toolbar.
+
+`store-assets/icon-mark.png` is a flood-filled copy with the background cleared,
+used only in the promo tile. The shipped icons are unchanged.
+
+Fixing this properly means more than deleting the white: the artwork is a dark
+rounded-square *outline* with a white interior, so clearing the background alone
+leaves it nearly invisible on a dark toolbar. The real fix is a filled tile with
+a knocked-out arrow, which is a redesign. Worth resolving before publishing,
+since the toolbar icon is the extension's most-seen surface.
+
 ### Re-rendering
 
 ```sh
