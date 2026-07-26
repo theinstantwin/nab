@@ -26,10 +26,8 @@ PRD.md
 # Build output
 *.zip
 
-# Local only — the repo tracks just what Chrome loads
-# (manifest, scripts, icons). These stay on disk, untracked.
-README.md
-LICENSE
+# Local only. The repo tracks the extension plus its README and license;
+# these stay on disk, untracked.
 test.html
 store-assets/
 chrome-web-store.md
