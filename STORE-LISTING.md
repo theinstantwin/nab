@@ -85,38 +85,45 @@ English
 | Asset | Spec | Status |
 |-|-|-|
 | Store icon | 128×128 PNG | `icons/icon128.png` |
-| Screenshot 1 | 1280×800 | `store-assets/screenshot-1-drag.png` |
+| Screenshot 1 | 1280×800 | `store-assets/01-drag-to-download.png` |
 | Screenshot 2–5 | 1280×800 | optional |
-| Small promo tile | 440×280 | `store-assets/promo-tile-440x280.png` |
+| Small promo tile | 440×280 | `store-assets/promo-small.png` |
 | Marquee promo tile | 1400×560 | optional |
 
-### Screenshot 1
+### These are HTML mockups, not captures
 
-Shows a mid-drag on a photo-essay page: the outline green at the moment the
-threshold is crossed, a dashed arrow tracing the drag, the cursor at its end,
-and the real "✓ Downloading: img237.jpg" notification. Caption band burned in
-along the bottom: "Click and drag any image. It downloads." / "Built for social
-media managers."
+Each PNG renders from the `.html` beside it. Nothing came from a real staged
+browser: the display here caps the viewport near 1272×771, so a real capture
+can't reach 1280×800 without compositing, and the seams show. HTML also means a
+UI change is reflected by editing markup rather than re-staging a window.
 
-The drag was held open by dispatching `mousedown` and `mousemove` without a
-`mouseup`, which keeps the green state on screen long enough to capture. The
-notification text is what Nab actually produced during a live download, not
-mocked copy.
+The outline is the literal `.nab-outline--ready` from `content.js` — 2px solid
+`rgb(76,175,80)` with the 15px `rgba(76,175,80,.3)` glow — and the notification
+is `.nab-notification` verbatim. Colours are read out of the shipped stylesheet
+rather than eyeballed.
 
-To reshoot: the source page is a throwaway gallery, and the display here caps
-the viewport near 1272×771, so the 800px height comes from compositing the
-740px crop onto a 1280×800 canvas with the caption band filling the remainder.
+Layout follows the house pattern from `feedly-highlighter/store-screenshots/`:
+inset browser frame on a soft diagonal gradient with a drop shadow, caption
+centered below the frame as a bold headline plus a lighter supporting line.
 
-### Promo tile
+### Re-rendering
 
-Icon and wordmark left with the "Click and drag any image / It downloads" copy
-and the audience line, a bordered photo right showing the green outline and a
-"✓ fjord.jpg" chip. Built on the same near-black as the screenshot caption band.
+```sh
+cd store-assets
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+"$CHROME" --headless --disable-gpu --hide-scrollbars \
+  --force-device-scale-factor=1 --window-size=1280,800 \
+  --screenshot="01-drag-to-download.png" "file://$PWD/01-drag-to-download.html"
+"$CHROME" --headless --disable-gpu --hide-scrollbars \
+  --force-device-scale-factor=1 --window-size=440,280 \
+  --screenshot="promo-small.png" "file://$PWD/promo-small.html"
+```
 
-A bright photo matters here: the first pass used the black-dog crop from the
-screenshot and the green outline disappeared against the dark tile. Checked at
-50% too, since store surfaces often render the tile small — "Nab" and "It
-downloads." both still read.
+`--force-device-scale-factor=1` matters: without it a retina display renders at
+2× and the store rejects the file.
+
+The promo tile was checked at 50% as well, since store surfaces often render it
+small — "Nab" and the lede both still read.
 
 ### Remaining assets
 
