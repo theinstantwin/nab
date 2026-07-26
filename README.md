@@ -12,16 +12,16 @@ is in your Downloads folder.
 
 **Until then, install it manually.** Takes about a minute.
 
-1. Download this repo: green **Code** button above → **Download ZIP**, then
-   unzip it. (Remember where it lands. Chrome loads the extension from that
-   folder, so deleting it uninstalls Nab.)
+1. Download [**nab-2.1.0.zip**](https://github.com/theinstantwin/nab/releases/latest)
+   and unzip it. Keep the folder somewhere permanent — Chrome loads the
+   extension from it, so deleting it uninstalls Nab.
 2. Open a new tab and go to `chrome://extensions`
 3. Turn on the **Developer mode** toggle
 4. Click **Load unpacked** and pick the unzipped folder
 5. Nab appears in your extensions list. Reload any tabs you already had open.
 
-To update later, download the new version and click the refresh icon on Nab's
-card at `chrome://extensions`.
+To update later, download the newer ZIP, replace the folder's contents, and
+click the refresh icon on Nab's card at `chrome://extensions`.
 
 ## About that permission warning
 
