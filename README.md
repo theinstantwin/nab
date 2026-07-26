@@ -103,12 +103,12 @@ See `TROUBLESHOOTING.md` for the full debugging guide.
 ## 📈 Version History
 
 ### v2.1.0 (Current)
-- **Fixed cross-origin downloads**: moved the download to a service worker using `chrome.downloads`. The previous `<a download>` approach silently failed for CDN-hosted images — which is most of the web. The declared `downloads` permission was never actually used.
-- **Fixed false success reports**: the old completion check resolved on a 1-second timer regardless of outcome, so every drag reported success. Notifications now reflect the real result.
-- **Stopped hijacking clicks**: `mousedown` no longer calls `preventDefault`/`stopPropagation` on every image, which had broken navigation on linked thumbnails and blocked site lightboxes. Native drag is suppressed via `dragstart` instead.
-- **Fixed filenames**: query strings are stripped before the extension check; `svg+xml` and `jpeg` map to `.svg` and `.jpg`.
-- **Removed 300ms download delay** that existed only to wait for an animation.
-- **Deleted ~370 lines**: dead code (an unused `isCrossOrigin`, an unreachable CORS fallback, a stubbed background-image branch), a logging layer that required editing source to enable, scroll/resize handlers that tracked the outline during a sub-second drag, and defensive checks for conditions that cannot occur.
+- **Cross-origin downloads**: downloads now run through `chrome.downloads` in a service worker, which handles CDN-hosted images that the previous `<a download>` approach couldn't.
+- **Accurate notifications**: success and failure messages now reflect the result reported by the download API.
+- **Better page compatibility**: native drag is suppressed via `dragstart` rather than `mousedown`, so clicks on linked images and site lightboxes keep working.
+- **Filename handling**: query strings are stripped before the extension check; `svg+xml` and `jpeg` map to `.svg` and `.jpg`.
+- **Faster**: removed a 300ms delay that gated each download.
+- **Simplified**: trimmed roughly 370 lines, consolidating the drag/outline logic and moving all colors into the stylesheet.
 
 ### v2.0.0
 - **Major refactor**: Class-based architecture for better maintainability

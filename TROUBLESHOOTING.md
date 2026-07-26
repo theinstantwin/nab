@@ -79,7 +79,7 @@ The service worker restarted, or the extension was reloaded while the page staye
 Open `test.html` and work through each case — same-origin, cross-origin, query-string URL, `data:` URL, SVG, and the linked image.
 
 ### **Step 2: Verify the download landed**
-Confirm the file is in your Downloads folder with a sensible filename. A success notification alone isn't proof — check the file exists. (Reporting success without checking was the exact bug fixed in v2.1.0.)
+Confirm the file is in your Downloads folder with a sensible filename. Check that the file exists rather than relying on the notification alone.
 
 ### **Step 3: Confirm normal browsing still works**
 Plain-click the linked image on the test page. It should navigate. If it doesn't, Nab is interfering with page clicks — that's a bug worth reporting.

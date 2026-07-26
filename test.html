@@ -85,17 +85,17 @@
             <p>PNG data URL:</p>
             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" width="100" height="100" style="background: #4ecdc4;" alt="Test PNG">
         </div>
-        <div class="expect">Expect <code>image.svg</code> and <code>image.png</code>. Before v2.1.0 the first one saved as <code>image.svg+xml</code>.</div>
+        <div class="expect">Expect <code>image.svg</code> and <code>image.png</code> — the MIME subtype maps to a real file extension.</div>
     </div>
 
     <div class="test-section">
-        <h3>Test 2: Cross-origin (the case that was broken)</h3>
+        <h3>Test 2: Cross-origin</h3>
         <div class="test-image">
             <p>Remote image, no query string:</p>
             <img src="https://picsum.photos/id/237/200/150" alt="Cross-origin image">
         </div>
         <div class="expect">
-            Expect the file to <strong>save to Downloads</strong>. Before v2.1.0 the <code>download</code> attribute was ignored cross-origin, so this navigated or opened a tab instead of saving. This is the single most important test on the page.
+            Expect the file to <strong>save to Downloads</strong> rather than open in a tab. Most images on the web are served from another origin, so this is the most important test on the page.
         </div>
     </div>
 
@@ -114,7 +114,7 @@
             <p>Same-origin inline-generated SVG:</p>
             <img id="svg-blob" width="150" height="100" alt="SVG blob">
         </div>
-        <div class="expect">Expect a <code>.svg</code> download. The old README claimed SVG was unsupported; it works.</div>
+        <div class="expect">Expect a <code>.svg</code> download. SVG files loaded via <code>&lt;img&gt;</code> are supported.</div>
     </div>
 
     <div class="test-section">
@@ -126,7 +126,7 @@
             </a>
         </div>
         <div class="expect">
-            <strong>Plain click</strong> → the status line below must say the link fired. This was broken before v2.1.0: <code>mousedown</code> called <code>preventDefault()</code> on every image, so linked thumbnails stopped navigating.<br>
+            <strong>Plain click</strong> → the status line below must say the link fired. Nab should never interfere with a normal click on a linked image.<br>
             <strong>Drag past 50px</strong> → downloads, and the link must <em>not</em> fire.
         </div>
         <p id="link-status" style="font-weight:600;color:#888">Link status: not clicked yet</p>
@@ -146,7 +146,7 @@
             <p>Empty source (should be ignored):</p>
             <img src="" alt="Empty" style="width:100px;height:100px;background:#ddd;border:1px solid #999;">
         </div>
-        <div class="expect">The broken source should produce a <strong>failure</strong> notification with a real reason — not a false success. The empty source should produce no outline at all.</div>
+        <div class="expect">The broken source should produce a <strong>failure</strong> notification stating the reason. The empty source should produce no outline at all.</div>
     </div>
 
     <script>
