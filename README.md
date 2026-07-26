@@ -16,6 +16,7 @@ folder.
 | `background.js` | Service worker — performs the download |
 | `test.html` | Local test page; not shipped |
 | `icons/` | 16/32/48/128 PNGs |
+| `store-assets/` | Listing screenshots; not shipped |
 
 No build step. Two plain JS files, no dependencies.
 
@@ -122,7 +123,8 @@ document.querySelector('#nab-styles')   // null means it didn't inject
    cd projects/nab
    zip -r ../nab-$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])").zip . \
      -x '*.DS_Store' -x '.gitignore' -x 'LICENSE' -x 'README.md' \
-     -x 'chrome-web-store.md' -x 'STORE-LISTING.md' -x 'test.html' -x '.git/*'
+     -x 'chrome-web-store.md' -x 'STORE-LISTING.md' -x 'test.html' \
+     -x 'store-assets/*' -x '.git/*'
    ```
 3. Upload at [the developer console](https://chrome.google.com/webstore/devconsole) → the item → Package.
 4. Tag the release: `git tag -a v2.1.0 -m "..."`.

@@ -81,29 +81,31 @@ English
 | Asset | Spec | Status |
 |-|-|-|
 | Store icon | 128×128 PNG | `icons/icon128.png` |
-| Screenshot 1 | 1280×800 | needed |
+| Screenshot 1 | 1280×800 | `store-assets/screenshot-1-drag.png` |
 | Screenshot 2–5 | 1280×800 | optional |
 | Small promo tile | 440×280 | needed |
 | Marquee promo tile | 1400×560 | optional |
 
-### Screenshot notes
+### Screenshot 1
 
-A still frame of a rectangle around a photo communicates nothing on its own, and
-Nab's whole interface is a motion. Options, roughly in order of how well they'd
-work:
+Shows a mid-drag on a photo-essay page: the outline green at the moment the
+threshold is crossed, a dashed arrow tracing the drag, the cursor at its end,
+and the real "✓ Downloading: img237.jpg" notification. Caption band burned in
+along the bottom.
 
-1. **Mid-drag, annotated.** The green outline at the moment the threshold is
-   crossed, with a drawn arrow tracing the drag path and the cursor visible.
-   Add a short caption burned into the image — the store renders screenshots
-   large enough to read.
-2. **Before/after pair.** Two screenshots: the outline going green, then the
-   file sitting in the Downloads shelf. Sequence tells the story a single frame
-   can't.
-3. **A real page, not a test page.** Shoot it on a photography or news site. A
-   screenshot of `test.html` looks like a developer artifact and undersells it.
+The drag was held open by dispatching `mousedown` and `mousemove` without a
+`mouseup`, which keeps the green state on screen long enough to capture. The
+notification text is what Nab actually produced during a live download, not
+mocked copy.
 
-Avoid a bare screenshot with no annotation — reviewers and users both read the
-first screenshot as the product demo.
+To reshoot: the source page is a throwaway gallery, and the display here caps
+the viewport near 1272×771, so the 800px height comes from compositing the
+740px crop onto a 1280×800 canvas with the caption band filling the remainder.
+
+### Remaining assets
+
+The 440×280 promo tile is the last required piece. At that size only the
+wordmark, the icon, and one image with a green outline will be legible.
 
 ### Promo tile notes
 
