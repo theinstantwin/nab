@@ -116,8 +116,3 @@ downloads." both still read.
 
 Everything required is done. Optional: up to four more screenshots, and the
 1400×560 marquee tile.
-
-### Promo tile notes
-
-440×280 is small. Fit the word "Nab," the icon, and one image with a green
-outline. Nothing more will be legible at that size.
