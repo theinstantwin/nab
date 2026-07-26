@@ -4,47 +4,39 @@
 
 ### 1. **Check Extension Status**
 1. Open Chrome and go to `chrome://extensions/`
-2. Make sure "Drag to Download Images" is **enabled**
+2. Make sure "Nab" is **enabled**
 3. Check if there are any error messages
 4. Try toggling the extension off and on
 
-### 2. **Enable Debug Mode**
-To see detailed logs of what the extension is doing:
+### 2. **Check the right console**
 
-1. Open the `content.js` file
-2. Change line 12 from:
-   ```javascript
-   this.debugMode = false; // Set to true for debugging
-   ```
-   to:
-   ```javascript
-   this.debugMode = true; // Set to true for debugging
-   ```
-3. Reload the extension in Chrome
-4. Open browser console (F12) and check for `[ImageDownloader]` messages
+Nab runs in two places, and errors surface in different consoles:
+
+| Context | Where to look | What lives there |
+|-|-|-|
+| Content script | Page console (F12) | Drag detection, outline, notifications |
+| Service worker | `chrome://extensions/` → Nab → "service worker" | The actual download |
+
+If a drag produces a green outline but nothing downloads, check the **service worker** console — that's where `chrome.downloads` errors appear.
 
 ### 3. **Run Debug Script**
-Copy and paste this script into your browser console (F12) on any webpage:
+Paste this into the page console (F12) on any webpage:
 
 ```javascript
-// Debug Helper - Copy and paste this into browser console
-console.log('🔍 Chrome Image Downloader Debug Helper');
-console.log('=====================================');
+console.log('🔍 Nab Debug Helper');
+console.log('===================');
 
-const extensionLoaded = document.querySelector('#img-download-styles');
-console.log('✓ Extension loaded:', extensionLoaded ? 'YES' : 'NO');
+const loaded = document.querySelector('#nab-styles');
+console.log('✓ Extension loaded:', loaded ? 'YES' : 'NO');
 
 const images = document.querySelectorAll('img');
 console.log('✓ Images found on page:', images.length);
 
-if (images.length > 0) {
-  console.log('📋 First few images:');
-  Array.from(images).slice(0, 3).forEach((img, index) => {
-    console.log(`  ${index + 1}. ${img.src.substring(0, 100)}...`);
-  });
-}
+Array.from(images).slice(0, 3).forEach((img, i) => {
+  console.log(`  ${i + 1}. ${(img.currentSrc || img.src).substring(0, 100)}`);
+});
 
-console.log('🔧 Try dragging any image and watch console for errors');
+console.log('🔧 Try dragging an image and watch for errors');
 ```
 
 ## Common Issues & Solutions
@@ -53,79 +45,59 @@ console.log('🔧 Try dragging any image and watch console for errors');
 **Symptoms**: Clicking and dragging images does nothing
 
 **Solutions**:
-- Check if the extension is enabled in `chrome://extensions/`
-- Make sure you're dragging an actual `<img>` element (not background images)
-- Try refreshing the page
-- Check browser console for JavaScript errors
+- Check the extension is enabled in `chrome://extensions/`
+- Make sure you're dragging an actual `<img>` element — CSS `background-image` is unsupported
+- Reload the page. Content scripts don't inject into already-open tabs after an extension reload.
+- Check the page console for JavaScript errors
 
-### **Issue 2: Outline appears but download doesn't work**
-**Symptoms**: Blue outline shows, turns green, but no download happens
+### **Issue 2: "Download failed" notification**
+**Symptoms**: Outline turns green, then a failure notification appears
 
-**Solutions**:
-- Check if the image source is valid (not broken)
-- Try with images from the same domain first
-- Look for Content Security Policy (CSP) restrictions
-- Check Downloads settings in Chrome
+The notification includes the reason Chrome reported. Common causes:
+- The image URL returns an error or has expired (common with signed CDN URLs)
+- Chrome's download directory is unwritable, or a save prompt was dismissed
+- The site blocks direct requests to the image URL
 
-### **Issue 3: Extension works on some sites but not others**
+Check the **service worker** console for the underlying `chrome.downloads` error.
+
+### **Issue 3: "Try reloading the page"**
+**Symptoms**: That specific notification text
+
+The service worker restarted, or the extension was reloaded while the page stayed open, so the content script lost its connection. Reload the tab.
+
+### **Issue 4: Works on some sites but not others**
 **Symptoms**: Inconsistent behavior across websites
 
-**Possible Causes**:
-- **CSP Restrictions**: Some sites block content script injection
-- **Lazy Loading**: Images might not be fully loaded
-- **JavaScript Conflicts**: Other scripts interfering
-- **Custom Image Handling**: Sites with special image viewers
-
-**Solutions**:
-- Try on simple sites like Google Images first
-- Check browser console for error messages
-- Disable other extensions temporarily
-
-### **Issue 4: Cross-origin image problems**
-**Symptoms**: Downloads fail for images from other domains
-
-**This is expected behavior**:
-- Modern browsers restrict downloading cross-origin images
-- The extension will try to open the image in a new tab instead
-- You can then right-click and save from there
+**Possible causes**:
+- **Background images**: many news and marketing sites render images via CSS, which is unsupported
+- **Lazy loading**: the image may not have loaded yet
+- **Custom viewers**: some sites paint images into `<canvas>` rather than `<img>`
 
 ## Testing Protocol
 
-### **Step 1: Basic Test**
-1. Go to [Google Images](https://images.google.com)
-2. Search for any image
-3. Try dragging one of the search result images
-4. Should see blue outline → green outline → download
+### **Step 1: Local test page**
+Open `test.html` and work through each case — same-origin, cross-origin, query-string URL, `data:` URL, SVG, and the linked image.
 
-### **Step 2: Console Check**
-1. Open Developer Tools (F12)
-2. Go to Console tab
-3. Look for any red error messages
-4. Try the drag operation again
-5. Watch for `[ImageDownloader]` messages (if debug mode enabled)
+### **Step 2: Verify the download landed**
+Confirm the file is in your Downloads folder with a sensible filename. A success notification alone isn't proof — check the file exists. (Reporting success without checking was the exact bug fixed in v2.1.0.)
 
-### **Step 3: Extension Reload**
-1. Go to `chrome://extensions/`
-2. Find "Drag to Download Images"
-3. Click the refresh/reload button
-4. Try again on the webpage
+### **Step 3: Confirm normal browsing still works**
+Plain-click the linked image on the test page. It should navigate. If it doesn't, Nab is interfering with page clicks — that's a bug worth reporting.
+
+### **Step 4: Extension reload**
+1. Go to `chrome://extensions/` and click reload on Nab
+2. **Reload the webpage too** — required after an extension reload
+3. Try again
 
 ## Getting Help
 
-If the extension still isn't working:
-
-1. **Check Console Errors**: Open F12 → Console, look for red errors
-2. **Test Multiple Sites**: Try Google Images, Wikipedia, etc.
-3. **Check Chrome Version**: Make sure you're on Chrome 88+
-4. **Restart Chrome**: Sometimes helps with extension issues
-
 ### **Reporting Issues**
-Include this information:
+Include:
 - Chrome version (`chrome://version/`)
-- Website URL where it's not working
-- Console error messages (if any)
-- Whether debug mode shows any `[ImageDownloader]` messages
-- Steps to reproduce the issue
+- The website URL where it fails
+- Errors from **both** consoles (page and service worker)
+- Whether the image is an `<img>` element or a CSS background
+- Steps to reproduce
 
 ## Quick Fixes
 
@@ -134,12 +106,7 @@ Include this information:
 2. Remove the extension completely
 3. Restart Chrome
 4. Reinstall the extension
-5. Test on Google Images
+5. Test with `test.html`
 
 ### **Emergency Fallback**
-If nothing works, you can always:
-1. Right-click any image
-2. Select "Save image as..."
-3. Choose location and save
-
-The extension is just a convenience tool - the browser's built-in save function always works! 
+You can always right-click an image and choose "Save image as..." — the browser's built-in save always works. Nab is a convenience tool.

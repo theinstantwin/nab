@@ -6,10 +6,11 @@ A Chrome extension that makes downloading images effortless. Just drag any image
 
 - **Drag & Download**: Click and drag any image beyond 50px to download instantly
 - **Visual Feedback**: Blue outline that turns green when ready to download
-- **Smart Error Handling**: Clear notifications for success and failure states
+- **Works cross-origin**: Downloads CDN-hosted images, not just same-origin ones
+- **Honest notifications**: Success and failure messages reflect the actual download result
 - **Zero Setup**: Works immediately after installation
-- **Universal**: Functions on all websites without permission prompts
-- **Lightweight**: Single content script, no external dependencies
+- **Stays out of the way**: Clicking a linked image still follows the link
+- **Lightweight**: One content script, one small service worker, no dependencies
 - **Accessible**: ESC key cancellation support
 
 ## 🚀 Quick Start
@@ -29,33 +30,46 @@ A Chrome extension that makes downloading images effortless. Just drag any image
 5. **Release** to download - you'll see a success animation and notification
 6. **Press ESC** at any time to cancel
 
+Clicking an image without dragging does nothing, so links and lightboxes behave normally.
+
 ## 🎯 What It Does
 
 ### Supported
 - Downloads images from HTML `<img>` elements
-- Provides visual feedback during drag operations
-- Handles cross-origin images gracefully (opens in new tab)
-- Works with data URLs and standard image formats
+- Cross-origin and same-origin images alike
+- `.svg` files loaded via `<img src="...">`
+- `data:` URLs
+- Responsive images (`srcset` / `<picture>`) — grabs the variant the browser actually rendered
+- Strips query strings from filenames (`photo.jpg?w=800` saves as `photo.jpg`)
 
 ### Not Supported
 - **Background images** (CSS `background-image` properties)
-- **SVG graphics** or inline SVGs
+- **Inline `<svg>` elements** (as opposed to `.svg` files in an `<img>`)
 - **Videos** or other media types
 - **Bulk downloads** or batch operations
 
 ## 🛠️ Technical Details
 
-- **Architecture**: ES6 class-based design
-- **Manifest**: V3 compliant with minimal permissions
-- **Performance**: <2MB memory footprint, <1% CPU usage
-- **Error Handling**: Comprehensive error management
-- **Debug Mode**: Built-in debugging (set `debugMode = true` in content.js)
+- **Architecture**: ES6 class in a content script, plus a service worker for downloads
+- **Manifest**: V3, one permission (`downloads`)
+- **Downloads**: handled by `chrome.downloads` in the service worker. A content script can't do this itself — the `download` attribute on an `<a>` element is ignored for cross-origin URLs, which is most images on the web.
+- **Native drag**: suppressed via `dragstart`, so the browser's ghost-drag doesn't fight the outline
+
+### How the download works
+
+```
+content.js  --{type:'nab-download', url, filename}-->  background.js
+content.js  <--------{ok, error}---------------------  chrome.downloads.download()
+```
+
+The notification shows whatever the service worker actually reports.
 
 ## 📁 Project Structure
 
 ```
 ├── manifest.json          # Extension configuration
-├── content.js             # Main functionality
+├── content.js             # Drag detection, outline, notifications
+├── background.js          # Service worker — performs the download
 ├── icons/                 # Extension icons
 │   ├── icon16.png
 │   ├── icon32.png
@@ -69,39 +83,36 @@ A Chrome extension that makes downloading images effortless. Just drag any image
 ## 🧪 Testing
 
 ### Quick Test
-1. Open `test.html` in your browser
-2. Try dragging the sample images
-3. Enable debug mode to see detailed console output
+Open `test.html` in your browser and work through the cases: same-origin, cross-origin, query-string URLs, `data:` URLs, SVG, and a linked image (which should still navigate on a plain click).
 
-### Real-World Testing
-- **Google Images**: Works perfectly
-- **Wikipedia**: Reliable downloads
-- **News sites**: Mixed results (many use background images)
-- **Social media**: Varies by platform
+### What to check
+- The file lands in your Downloads folder with a sensible filename
+- Cross-origin images save rather than opening in a tab
+- A plain click on a linked image still follows the link
 
 ## 🔧 Troubleshooting
 
 ### Common Issues
-1. **No outline appears**: Image might be a background image (unsupported)
-2. **Outline appears but no download**: Check console for CORS errors
-3. **Extension not working**: Ensure it's enabled in `chrome://extensions/`
+1. **No outline appears**: the image is probably a CSS background image (unsupported)
+2. **"Download failed" notification**: the message includes the reason reported by Chrome
+3. **"Try reloading the page"**: the service worker restarted; reload the tab to reconnect
+4. **Extension not working**: ensure it's enabled in `chrome://extensions/`
 
-### Debug Mode
-Enable detailed logging by editing `content.js`:
-```javascript
-this.debugMode = true; // Change from false to true
-```
-
-See `TROUBLESHOOTING.md` for comprehensive debugging guide.
+See `TROUBLESHOOTING.md` for the full debugging guide.
 
 ## 📈 Version History
 
-### v2.0.0 (Current)
+### v2.1.0 (Current)
+- **Fixed cross-origin downloads**: moved the download to a service worker using `chrome.downloads`. The previous `<a download>` approach silently failed for CDN-hosted images — which is most of the web. The declared `downloads` permission was never actually used.
+- **Fixed false success reports**: the old completion check resolved on a 1-second timer regardless of outcome, so every drag reported success. Notifications now reflect the real result.
+- **Stopped hijacking clicks**: `mousedown` no longer calls `preventDefault`/`stopPropagation` on every image, which had broken navigation on linked thumbnails and blocked site lightboxes. Native drag is suppressed via `dragstart` instead.
+- **Fixed filenames**: query strings are stripped before the extension check; `svg+xml` and `jpeg` map to `.svg` and `.jpg`.
+- **Removed 300ms download delay** that existed only to wait for an animation.
+- **Deleted ~370 lines**: dead code (an unused `isCrossOrigin`, an unreachable CORS fallback, a stubbed background-image branch), a logging layer that required editing source to enable, scroll/resize handlers that tracked the outline during a sub-second drag, and defensive checks for conditions that cannot occur.
+
+### v2.0.0
 - **Major refactor**: Class-based architecture for better maintainability
-- **Bug fix**: Resolved race condition causing download failures
-- **Enhanced error handling**: Comprehensive error management
 - **Improved UI**: Better animations and user feedback
-- **Performance optimization**: Reduced memory usage and CPU impact
 - **Documentation**: Complete guides and troubleshooting
 
 ### v1.0.0 (Legacy)
@@ -112,20 +123,16 @@ See `TROUBLESHOOTING.md` for comprehensive debugging guide.
 
 Contributions are welcome! Please:
 1. **Keep it simple** - maintain the focused approach
-2. **Follow the existing code style** - ES6 classes, comprehensive error handling
+2. **Follow the existing code style** - ES6 classes, no dependencies
 3. **Test thoroughly** - ensure compatibility across different sites
 4. **Document changes** - update README and comments
 
 ### Development Guidelines
 - Keep the extension focused on its core purpose
 - Prioritize reliability over feature richness
-- Ensure all changes improve the user experience
+- Guard against failures that can actually happen; skip the rest
 - Maintain zero configuration requirement
 
 ## 📄 License
 
-MIT License - Feel free to modify and distribute.
-
-## 🙏 Acknowledgments
-
-Built following web extension best practices for creating focused, reliable tools. 
+MIT License - see [LICENSE](LICENSE).

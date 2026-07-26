@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
   "name": "Nab",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Instantly download images by dragging them. Simple, fast, and intuitive.",
-  "author": "Chrome Image Downloader",
+  "author": "Matt DeSiena",
   "permissions": [
     "downloads"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
