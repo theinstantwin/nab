@@ -5,11 +5,10 @@
  * content scripts can't save cross-origin images.
  */
 
+// Colors live in the stylesheet below, not here — see --nab-accent/--nab-success.
 const CONFIG = {
   minDragDistance: 50,
-  notificationDuration: 3000,
-  outlineColor: '#2196F3',
-  successColor: '#4CAF50'
+  notificationDuration: 3000
 };
 
 class ImageDownloader {
@@ -149,14 +148,9 @@ class ImageDownloader {
   updateOutline(dragDistance) {
     if (!this.outline) return;
 
-    const progress = Math.min(100, (dragDistance / CONFIG.minDragDistance) * 100);
-    const glow = Math.min(15, progress / 6.67);
-    const ready = progress >= 100;
-
-    this.outline.style.borderColor = ready ? CONFIG.successColor : CONFIG.outlineColor;
-    this.outline.style.boxShadow = ready
-      ? `0 0 0 ${glow}px rgba(76, 175, 80, 0.3)`
-      : `0 0 0 ${glow}px rgba(33, 150, 243, 0.3)`;
+    const progress = Math.min(1, dragDistance / CONFIG.minDragDistance);
+    this.outline.style.setProperty('--nab-glow', `${progress * 15}px`);
+    this.outline.classList.toggle('nab-outline--ready', progress === 1);
   }
 
   removeOutline() {
@@ -170,7 +164,7 @@ class ImageDownloader {
     const outline = this.outline;
     this.outline = null; // hand ownership to the animation
 
-    outline.style.borderColor = CONFIG.successColor;
+    outline.classList.add('nab-outline--ready');
     outline.style.animation = 'nab-pulse 1s forwards';
 
     const checkmark = document.createElement('div');
@@ -207,9 +201,20 @@ class ImageDownloader {
     const style = document.createElement('style');
     style.id = 'nab-styles';
     style.textContent = `
+      /*
+       * Every color Nab uses is defined once, here. The drag handler writes
+       * only --nab-glow; crossing the threshold just adds --ready, which
+       * repoints --nab-active at the success color.
+       */
       .nab-outline {
+        --nab-accent: 33, 150, 243;
+        --nab-success: 76, 175, 80;
+        --nab-active: var(--nab-accent);
+        --nab-glow: 0px;
+
         position: fixed;
-        border: 2px solid ${CONFIG.outlineColor};
+        border: 2px solid rgb(var(--nab-active));
+        box-shadow: 0 0 0 var(--nab-glow) rgba(var(--nab-active), 0.3);
         border-radius: 4px;
         box-sizing: border-box;
         pointer-events: none;
@@ -217,17 +222,21 @@ class ImageDownloader {
         transition: border-color 0.1s ease, box-shadow 0.1s ease;
       }
 
+      .nab-outline--ready {
+        --nab-active: var(--nab-success);
+      }
+
       @keyframes nab-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-        70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(var(--nab-success), 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(var(--nab-success), 0); }
+        100% { box-shadow: 0 0 0 0 rgba(var(--nab-success), 0); }
       }
 
       .nab-checkmark {
         position: absolute;
         top: 50%;
         left: 50%;
-        background: rgba(76, 175, 80, 0.9);
+        background: rgba(var(--nab-success), 0.9);
         border-radius: 50%;
         padding: 8px;
         display: flex;
