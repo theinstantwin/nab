@@ -108,6 +108,8 @@ class ImageDownloader {
   }
 
   filenameFor(url) {
+    // Untested: whether chrome.downloads accepts data: URLs at all — Chrome's
+    // docs don't say. If it rejects them, this branch is dead code.
     if (url.startsWith('data:')) {
       const mime = url.slice(5).split(/[;,]/)[0];
       const subtype = mime.split('/')[1] || 'png';
