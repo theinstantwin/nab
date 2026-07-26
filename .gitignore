@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Development
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Internal documentation
+PRD.md
+
+# Build output
+*.zip
+
+# Local only — the repo tracks just what Chrome loads
+# (manifest, scripts, icons). These stay on disk, untracked.
+README.md
+LICENSE
+test.html
+store-assets/
+chrome-web-store.md
+STORE-LISTING.md 
