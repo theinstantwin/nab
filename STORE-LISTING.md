@@ -83,7 +83,7 @@ English
 | Store icon | 128×128 PNG | `icons/icon128.png` |
 | Screenshot 1 | 1280×800 | `store-assets/screenshot-1-drag.png` |
 | Screenshot 2–5 | 1280×800 | optional |
-| Small promo tile | 440×280 | needed |
+| Small promo tile | 440×280 | `store-assets/promo-tile-440x280.png` |
 | Marquee promo tile | 1400×560 | optional |
 
 ### Screenshot 1
@@ -102,10 +102,20 @@ To reshoot: the source page is a throwaway gallery, and the display here caps
 the viewport near 1272×771, so the 800px height comes from compositing the
 740px crop onto a 1280×800 canvas with the caption band filling the remainder.
 
+### Promo tile
+
+Icon and wordmark left, a bordered photo right showing the green outline and a
+"✓ fjord.jpg" chip. Built on the same near-black as the screenshot caption band.
+
+A bright photo matters here: the first pass used the black-dog crop from the
+screenshot and the green outline disappeared against the dark tile. Checked at
+50% too, since store surfaces often render the tile small — "Nab" and "It
+downloads." both still read.
+
 ### Remaining assets
 
-The 440×280 promo tile is the last required piece. At that size only the
-wordmark, the icon, and one image with a green outline will be legible.
+Everything required is done. Optional: up to four more screenshots, and the
+1400×560 marquee tile.
 
 ### Promo tile notes
 
