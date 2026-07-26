@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Nab",
   "version": "2.1.0",
-  "description": "Instantly download images by dragging them. Simple, fast, and intuitive.",
+  "description": "Click and drag any image to download it instantly. Built for social media managers.",
   "author": "Matt DeSiena",
   "permissions": [
     "downloads"

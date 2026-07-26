@@ -15,39 +15,43 @@ Nab
 ## Short description (132 character limit)
 
 ```
-Drag any image to download it. No right-click, no menu, no dialog.
+Click and drag any image to download it instantly. Built for social media managers.
 ```
 
-66 characters.
+83 characters.
 
 ## Detailed description
 
 ```
-Grab an image, pull it 50 pixels, let go. It's in your Downloads folder.
+Click and drag any image. It's in your Downloads folder.
 
-That's the whole extension. No right-click, no submenu, no save dialog asking
-where to put it.
+Built for social media managers, and anyone else who saves forty images before
+lunch. Right-click, wait for the menu, find "Save image as," confirm the
+dialog — that's four steps and a few seconds, every single time. Do it forty
+times a day and it adds up to real minutes you'd rather spend on the work
+itself.
+
+Nab makes it one motion.
 
 HOW IT WORKS
 
-Click and hold any image. A blue outline appears. Drag — the outline glows as
-you go, then turns green once you've passed the threshold. Release and it
-downloads. Changed your mind? Press Escape, or just let go before the outline
-turns green.
+Click and hold any image. A blue outline appears. Drag, and the outline glows
+as you go, then turns green. Release and it downloads. Changed your mind? Press
+Escape, or let go before the outline turns green.
 
-WHAT YOU GET
+BUILT FOR VOLUME
 
 • Works on images from any source, including the CDN-hosted ones most sites use
 • Filenames come out clean — photo.jpg, not photo.jpg?w=800&q=75&fit=crop
-• Tells you when a download fails, and why
+• Tells you when a download fails, and why, instead of failing quietly
 • Stays out of the way: a normal click on a linked image still follows the link
 • No setup, no options page, no account
 
 WHAT IT DOESN'T DO
 
 Background images set through CSS, inline SVG, canvas elements, and video are
-outside what a drag on an <img> can reach. Bulk downloading isn't the idea
-either — Nab grabs the one image you dragged.
+outside what a drag on an image element can reach. Bulk downloading isn't the
+idea either — Nab grabs the one image you dragged.
 
 PRIVACY
 
@@ -91,7 +95,8 @@ English
 Shows a mid-drag on a photo-essay page: the outline green at the moment the
 threshold is crossed, a dashed arrow tracing the drag, the cursor at its end,
 and the real "✓ Downloading: img237.jpg" notification. Caption band burned in
-along the bottom.
+along the bottom: "Click and drag any image. It downloads." / "Built for social
+media managers."
 
 The drag was held open by dispatching `mousedown` and `mousemove` without a
 `mouseup`, which keeps the green state on screen long enough to capture. The
@@ -104,7 +109,8 @@ the viewport near 1272×771, so the 800px height comes from compositing the
 
 ### Promo tile
 
-Icon and wordmark left, a bordered photo right showing the green outline and a
+Icon and wordmark left with the "Click and drag any image / It downloads" copy
+and the audience line, a bordered photo right showing the green outline and a
 "✓ fjord.jpg" chip. Built on the same near-black as the screenshot caption band.
 
 A bright photo matters here: the first pass used the black-dog crop from the
