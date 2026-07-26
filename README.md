@@ -88,6 +88,12 @@ selection. An `.svg` file loaded through `<img>` works fine.
 No `host_permissions`, no `scripting`, no `storage`. Nab makes no network
 requests, stores nothing, and sends nothing anywhere.
 
+`content_scripts.matches` triggers the same install warning as `host_permissions`
+would — "Read and change all your data on all websites." That's unavoidable for
+a drag-anywhere tool. `activeTab` + `scripting` would drop the warning but
+require a toolbar click on every page first, which is slower than right-click →
+Save image as and defeats the point. Don't add permissions that don't help.
+
 ## Testing
 
 Load unpacked at `chrome://extensions`, then open `test.html` and work through
@@ -123,15 +129,27 @@ document.querySelector('#nab-styles')   // null means it didn't inject
    cd projects/nab
    zip -r ../nab-$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])").zip . \
      -x '*.DS_Store' -x '.gitignore' -x 'LICENSE' -x 'README.md' \
-     -x 'chrome-web-store.md' -x 'STORE-LISTING.md' -x 'test.html' \
-     -x 'store-assets/*' -x '.git/*'
+     -x 'test.html' -x 'store-assets/*' -x '.git/*'
    ```
 3. Upload at [the developer console](https://chrome.google.com/webstore/devconsole) → the item → Package.
 4. Tag the release: `git tag -a v2.1.0 -m "..."`.
 
 `name` in the manifest sets the public store title, so it must stay **Nab** once
-published or the listing renames itself on upload. Submission mechanics and
-listing copy are in `chrome-web-store.md` and `STORE-LISTING.md`.
+published or the listing renames itself on upload. A version burns once
+*uploaded*, not once published, so a rejected draft still consumes its number.
+
+Listing assets live in `store-assets/` and render from the HTML beside them:
+
+```bash
+cd store-assets
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+"$CHROME" --headless --disable-gpu --hide-scrollbars \
+  --force-device-scale-factor=1 --window-size=1280,800 \
+  --screenshot="01-drag-to-download.png" "file://$PWD/01-drag-to-download.html"
+```
+
+`--force-device-scale-factor=1` matters: without it a retina display renders at
+2× and the store rejects the file.
 
 ## Version history
 
