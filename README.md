@@ -8,7 +8,9 @@ is in your Downloads folder.
 
 ## Install
 
-**From the Chrome Web Store** — *link coming once the listing is approved.*
+**From the Chrome Web Store** — [submitted, awaiting
+review](https://chromewebstore.google.com/detail/fgigkcbgndamdemjdbhemgndlpmamjje).
+The link goes live once it's approved.
 
 **Until then, install it manually.** Takes about a minute.
 
