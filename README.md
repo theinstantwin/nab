@@ -1,131 +1,162 @@
-# Nab - Drag to Download Images
+# Nab
 
-A Chrome extension that makes downloading images effortless. Just drag any image to download it instantly.
+Chrome extension. Drag any image past 50 pixels and it saves to your Downloads
+folder.
 
-## ✨ Features
+- **Store listing:** not yet submitted
+- **Extension ID:** assigned by the store on first publish
+- **Status:** unpublished — loaded unpacked for development
 
-- **Drag & Download**: Click and drag any image beyond 50px to download instantly
-- **Visual Feedback**: Blue outline that turns green when ready to download
-- **Smart Error Handling**: Clear notifications for success and failure states
-- **Zero Setup**: Works immediately after installation
-- **Universal**: Functions on all websites without permission prompts
-- **Lightweight**: Single content script, no external dependencies
-- **Accessible**: ESC key cancellation support
+## Layout
 
-## 🚀 Quick Start
+| File | Role |
+|-|-|
+| `manifest.json` | MV3 manifest |
+| `content.js` | Drag detection, the outline, notifications |
+| `background.js` | Service worker — performs the download |
+| `test.html` | Local test page; not shipped |
+| `icons/` | 16/32/48/128 PNGs |
+| `store-assets/` | Listing screenshots; not shipped |
 
-### Installation
-1. Download or clone this repository
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable "Developer mode" in the top right corner
-4. Click "Load unpacked" and select the extension directory
-5. Start dragging images to download them!
+No build step. Two plain JS files, no dependencies.
 
-### How to Use
-1. **Navigate** to any webpage with images
-2. **Click and hold** on any image
-3. **Drag** the image in any direction for at least 50 pixels
-4. **Watch** for the blue outline to turn green
-5. **Release** to download - you'll see a success animation and notification
-6. **Press ESC** at any time to cancel
+## Why the download lives in the service worker
 
-## 🎯 What It Does
+A content script can't save a cross-origin image. Chrome ignores the `download`
+attribute on an `<a>` element when the URL points at another origin, so the
+click either navigates or opens a tab. Most images on the web come from a CDN,
+which meant the obvious approach failed on most of the web.
 
-### Supported
-- Downloads images from HTML `<img>` elements
-- Provides visual feedback during drag operations
-- Handles cross-origin images gracefully (opens in new tab)
-- Works with data URLs and standard image formats
-
-### Not Supported
-- **Background images** (CSS `background-image` properties)
-- **SVG graphics** or inline SVGs
-- **Videos** or other media types
-- **Bulk downloads** or batch operations
-
-## 🛠️ Technical Details
-
-- **Architecture**: ES6 class-based design
-- **Manifest**: V3 compliant with minimal permissions
-- **Performance**: <2MB memory footprint, <1% CPU usage
-- **Error Handling**: Comprehensive error management
-- **Debug Mode**: Built-in debugging (set `debugMode = true` in content.js)
-
-## 📁 Project Structure
+`chrome.downloads` has no such restriction, and it only runs in the service
+worker. So `content.js` watches the drag and `background.js` does the saving:
 
 ```
-├── manifest.json          # Extension configuration
-├── content.js             # Main functionality
-├── icons/                 # Extension icons
-│   ├── icon16.png
-│   ├── icon32.png
-│   ├── icon48.png
-│   └── icon128.png
-├── README.md              # This documentation
-├── TROUBLESHOOTING.md     # Debug guide
-└── test.html              # Local testing page
+content.js  --{type:'nab-download', url, filename}-->  background.js
+content.js  <--------{ok, error}---------------------  chrome.downloads.download()
 ```
 
-## 🧪 Testing
+The notification reports what the service worker sends back. A green outline
+means the threshold was crossed, not that the file arrived.
 
-### Quick Test
-1. Open `test.html` in your browser
-2. Try dragging the sample images
-3. Enable debug mode to see detailed console output
+## The drag
 
-### Real-World Testing
-- **Google Images**: Works perfectly
-- **Wikipedia**: Reliable downloads
-- **News sites**: Mixed results (many use background images)
-- **Social media**: Varies by platform
+`mousedown` on an `<img>` records the start point and draws a fixed-position
+outline. `mousemove` grows a glow from 0 to 15px as you approach 50px. Cross the
+threshold and the outline turns green. Release and it downloads. Escape cancels.
 
-## 🔧 Troubleshooting
+Nab never calls `preventDefault()` on `mousedown`. That's tempting, since it's
+what suppresses the browser's native ghost-drag, but it fires before you know
+whether the user is dragging or clicking, so it swallows ordinary clicks. Linked
+thumbnails stop navigating, and site lightboxes never see the event. Handling
+`dragstart` instead suppresses the ghost image and nothing else, because
+`dragstart` only fires once a drag genuinely begins.
 
-### Common Issues
-1. **No outline appears**: Image might be a background image (unsupported)
-2. **Outline appears but no download**: Check console for CORS errors
-3. **Extension not working**: Ensure it's enabled in `chrome://extensions/`
+A completed drag does swallow the trailing `click`, so nabbing a linked thumbnail
+doesn't also follow the link.
 
-### Debug Mode
-Enable detailed logging by editing `content.js`:
+## Colors
+
+Both live in the injected stylesheet as `--nab-accent` and `--nab-success`.
+Crossing the threshold adds `.nab-outline--ready`, which repoints
+`--nab-active`. The drag handler writes one custom property, `--nab-glow`, and
+toggles one class. It sets no colors itself.
+
+## Filenames
+
+Derived from `URL.pathname`, so query strings never reach the filename:
+`photo.jpg?w=800` saves as `photo.jpg`. A path with no extension gets `.png`.
+Anything outside `[a-zA-Z0-9.-]` becomes an underscore, capped at 100
+characters. For `data:` URLs the MIME subtype becomes the extension, with
+`svg+xml` mapping to `svg` and `jpeg` to `jpg`.
+
+Whether `chrome.downloads` accepts `data:` URLs at all is untested — Chrome's
+documentation doesn't say. Drag one of the Test 1 images on `test.html` to find
+out; if it fails, that branch is dead code worth deleting.
+
+## What it doesn't handle
+
+CSS `background-image`, inline `<svg>` elements, `<canvas>`, videos, and bulk
+selection. An `.svg` file loaded through `<img>` works fine.
+
+## Permissions
+
+| Permission | Why |
+|-|-|
+| `downloads` | Saves the file. The whole point. |
+| `content_scripts` matching `<all_urls>` | The script has to be on the page to see the drag. |
+
+No `host_permissions`, no `scripting`, no `storage`. Nab makes no network
+requests, stores nothing, and sends nothing anywhere.
+
+## Testing
+
+Load unpacked at `chrome://extensions`, then open `test.html` and work through
+the six cases. The cross-origin one matters most — that's the case a content
+script can't handle on its own.
+
+Confirm the file lands in Downloads. A success notification alone isn't proof.
+
+## When something doesn't work
+
+Nab runs in two places and they log to different consoles. Drag behavior shows
+up in the page console (F12); download failures show up in the service worker
+console, reached from `chrome://extensions` → Nab → "service worker".
+
+| Symptom | Cause |
+|-|-|
+| No outline at all | The image is a CSS background, or the page was open before the extension loaded — reload it |
+| "Download failed", with a reason | Chrome rejected the URL. The reason comes from `chrome.downloads`; the service worker console has the detail |
+| "Try reloading the page" | The service worker restarted and the content script lost its connection. Reload the tab |
+| Works on some sites, not others | Background images, lazy-loaded images that haven't arrived yet, or sites painting into `<canvas>` |
+
+To confirm the content script is live on a page, check for its stylesheet:
+
 ```javascript
-this.debugMode = true; // Change from false to true
+document.querySelector('#nab-styles')   // null means it didn't inject
 ```
 
-See `TROUBLESHOOTING.md` for comprehensive debugging guide.
+## Releasing
 
-## 📈 Version History
+1. Bump `version` in `manifest.json` (Chrome rejects re-uploads at the same version).
+2. Zip the folder **contents**, not the folder:
+   ```bash
+   cd projects/nab
+   zip -r ../nab-$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])").zip . \
+     -x '*.DS_Store' -x '.gitignore' -x 'LICENSE' -x 'README.md' \
+     -x 'chrome-web-store.md' -x 'STORE-LISTING.md' -x 'test.html' \
+     -x 'store-assets/*' -x '.git/*'
+   ```
+3. Upload at [the developer console](https://chrome.google.com/webstore/devconsole) → the item → Package.
+4. Tag the release: `git tag -a v2.1.0 -m "..."`.
 
-### v2.0.0 (Current)
-- **Major refactor**: Class-based architecture for better maintainability
-- **Bug fix**: Resolved race condition causing download failures
-- **Enhanced error handling**: Comprehensive error management
-- **Improved UI**: Better animations and user feedback
-- **Performance optimization**: Reduced memory usage and CPU impact
-- **Documentation**: Complete guides and troubleshooting
+`name` in the manifest sets the public store title, so it must stay **Nab** once
+published or the listing renames itself on upload. Submission mechanics and
+listing copy are in `chrome-web-store.md` and `STORE-LISTING.md`.
 
-### v1.0.0 (Legacy)
-- Initial drag-to-download functionality
-- Basic visual feedback system
+## Version history
 
-## 🤝 Contributing
+- **2.1.0** — Downloads moved to a service worker using `chrome.downloads`,
+  which handles the cross-origin images the previous `<a download>` approach
+  couldn't. Notifications now report the result the download API returns rather
+  than resolving on a timer.
 
-Contributions are welcome! Please:
-1. **Keep it simple** - maintain the focused approach
-2. **Follow the existing code style** - ES6 classes, comprehensive error handling
-3. **Test thoroughly** - ensure compatibility across different sites
-4. **Document changes** - update README and comments
+  Native drag is suppressed through `dragstart` instead of `mousedown`, so
+  clicks on linked images and site lightboxes keep working. A 300ms delay that
+  gated each download is gone.
 
-### Development Guidelines
-- Keep the extension focused on its core purpose
-- Prioritize reliability over feature richness
-- Ensure all changes improve the user experience
-- Maintain zero configuration requirement
+  Filenames strip the query string before checking for an extension, and
+  `svg+xml`/`jpeg` map to `.svg`/`.jpg`.
 
-## 📄 License
+  Trimmed roughly 370 lines: an unused `isCrossOrigin`, an unreachable CORS
+  fallback, a stubbed background-image branch, a logging layer that needed a
+  source edit to switch on, scroll and resize handlers tracking the outline
+  through a sub-second drag, and null checks for conditions that can't occur.
+  Both colors now live in the stylesheet.
 
-MIT License - Feel free to modify and distribute.
+- **2.0.0** — Class-based rewrite. Animations and notification styling.
 
-## 🙏 Acknowledgments
+- **1.0.0** — Drag to download, with a blue outline.
 
-Built following web extension best practices for creating focused, reliable tools. 
+## License
+
+MIT — see [LICENSE](LICENSE).

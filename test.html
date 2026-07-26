@@ -3,132 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Downloader Test Page</title>
+    <title>Nab Test Page</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             padding: 20px;
             background: #f5f5f5;
+            max-width: 900px;
+            margin: 0 auto;
         }
         .test-section {
-            margin: 30px 0;
+            margin: 24px 0;
             padding: 20px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h3 {
+            margin-top: 0;
         }
         .test-image {
             margin: 10px;
             border: 2px dashed #ccc;
             padding: 10px;
             display: inline-block;
+            vertical-align: top;
+        }
+        .test-image p {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #555;
         }
         img {
             max-width: 200px;
             height: auto;
             border-radius: 4px;
+            display: block;
         }
         .instructions {
             background: #e3f2fd;
-            padding: 15px;
-            border-radius: 4px;
+            padding: 15px 20px;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
-        .long-page {
-            height: 200vh;
-            background: linear-gradient(to bottom, #fff, #f0f0f0);
+        .expect {
+            font-size: 13px;
+            color: #1565c0;
+            background: #f3f8ff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        code {
+            background: #eee;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div class="instructions">
-        <h2>🧪 Extension Test Page</h2>
-        <p><strong>Instructions:</strong></p>
+        <h2>🧪 Nab Test Page</h2>
         <ol>
-            <li>Open browser console (F12) to see debug messages</li>
-            <li>Try dragging each image below</li>
-            <li>Look for blue outline that should appear around the image</li>
-            <li>Drag at least 50px to trigger download</li>
-            <li>Check console for any error messages</li>
+            <li>Load the extension at <code>chrome://extensions</code> (Developer mode → Load unpacked)</li>
+            <li>Drag each image below more than 50px</li>
+            <li>Blue outline → green outline → success notification</li>
+            <li><strong>Then check your Downloads folder.</strong> The notification alone is not proof.</li>
         </ol>
-        <p><strong>Expected behavior:</strong> Blue outline → Green outline → Download notification</p>
+        <p style="margin-bottom:0"><strong>Two consoles matter:</strong> the page console (F12) for drag behavior, and the service worker console (<code>chrome://extensions</code> → Nab → "service worker") for download errors.</p>
     </div>
 
     <div class="test-section">
-        <h3>✅ Test 1: Simple Images (Same Domain)</h3>
+        <h3>Test 1: Data URLs</h3>
         <div class="test-image">
-            <p>SVG Test Image:</p>
+            <p>SVG data URL:</p>
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%23ff6b6b'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-family='Arial' font-size='14'%3ETEST%3C/text%3E%3C/svg%3E" alt="Test SVG">
         </div>
-        
+
         <div class="test-image">
-            <p>Data URL PNG:</p>
+            <p>PNG data URL:</p>
             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" width="100" height="100" style="background: #4ecdc4;" alt="Test PNG">
         </div>
+        <div class="expect">Expect <code>image.svg</code> and <code>image.png</code> — the MIME subtype maps to a real file extension.</div>
     </div>
 
     <div class="test-section">
-        <h3>🌐 Test 2: External Images (Cross-Origin)</h3>
+        <h3>Test 2: Cross-origin</h3>
         <div class="test-image">
-            <p>External Image (might open in new tab):</p>
-            <img src="https://via.placeholder.com/150x150/ff9f43/ffffff?text=External" alt="External Image">
+            <p>Remote image, no query string:</p>
+            <img src="https://picsum.photos/id/237/200/150" alt="Cross-origin image">
+        </div>
+        <div class="expect">
+            Expect the file to <strong>save to Downloads</strong> rather than open in a tab. Most images on the web are served from another origin, so this is the most important test on the page.
         </div>
     </div>
 
     <div class="test-section">
-        <h3>📏 Test 3: Different Sizes</h3>
+        <h3>Test 3: Query strings in the URL</h3>
         <div class="test-image">
-            <p>Small Image:</p>
+            <p>URL with <code>?</code> parameters:</p>
+            <img src="https://picsum.photos/id/1025/200/150?grayscale&blur=1" alt="Query string image">
+        </div>
+        <div class="expect">Expect a clean filename with no <code>?grayscale&amp;blur=1</code> tail and a proper extension.</div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 4: SVG file via &lt;img&gt;</h3>
+        <div class="test-image">
+            <p>Same-origin inline-generated SVG:</p>
+            <img id="svg-blob" width="150" height="100" alt="SVG blob">
+        </div>
+        <div class="expect">Expect a <code>.svg</code> download. SVG files loaded via <code>&lt;img&gt;</code> are supported.</div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 5: Linked image — click must still navigate</h3>
+        <div class="test-image">
+            <p>Wrapped in <code>&lt;a href&gt;</code>:</p>
+            <a href="#navigated-ok" id="test-link">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100'%3E%3Crect width='200' height='100' fill='%2355a3ff'/%3E%3Ctext x='100' y='48' text-anchor='middle' fill='white' font-family='Arial' font-size='15'%3ECLICK ME%3C/text%3E%3Ctext x='100' y='70' text-anchor='middle' fill='white' font-family='Arial' font-size='11'%3E(then drag me)%3C/text%3E%3C/svg%3E" alt="Linked image">
+            </a>
+        </div>
+        <div class="expect">
+            <strong>Plain click</strong> → the status line below must say the link fired. Nab should never interfere with a normal click on a linked image.<br>
+            <strong>Drag past 50px</strong> → downloads, and the link must <em>not</em> fire.
+        </div>
+        <p id="link-status" style="font-weight:600;color:#888">Link status: not clicked yet</p>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 6: Sizes and edge cases</h3>
+        <div class="test-image">
+            <p>Small (50px):</p>
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Ccircle cx='25' cy='25' r='20' fill='%2374b9ff'/%3E%3C/svg%3E" alt="Small">
         </div>
-        
         <div class="test-image">
-            <p>Large Image:</p>
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect width='300' height='200' fill='%2355a3ff'/%3E%3Ctext x='150' y='105' text-anchor='middle' fill='white' font-family='Arial' font-size='18'%3ELarge Image%3C/text%3E%3C/svg%3E" alt="Large">
+            <p>Broken source:</p>
+            <img src="https://nonexistent-domain-12345.invalid/broken.jpg" alt="Broken" style="width:150px;height:100px;background:#ffe0e0;">
         </div>
-    </div>
-
-    <div class="test-section">
-        <h3>📜 Test 4: Scrolling Test</h3>
-        <p>Scroll down and try dragging the image below to test outline positioning during scroll:</p>
-        <div class="long-page">
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                <div class="test-image">
-                    <p>Scroll Test Image:</p>
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100'%3E%3Crect width='200' height='100' fill='%23feca57'/%3E%3Ctext x='100' y='55' text-anchor='middle' fill='white' font-family='Arial' font-size='16'%3EScroll Test%3C/text%3E%3C/svg%3E" alt="Scroll Test">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="test-section">
-        <h3>🚨 Test 5: Error Cases</h3>
         <div class="test-image">
-            <p>Broken Image (should show error):</p>
-            <img src="https://nonexistent-domain-12345.com/broken.jpg" alt="Broken Image" style="width: 150px; height: 100px; background: #ff6b6b; display: flex; align-items: center; justify-content: center; color: white;">
+            <p>Empty source (should be ignored):</p>
+            <img src="" alt="Empty" style="width:100px;height:100px;background:#ddd;border:1px solid #999;">
         </div>
-        
-        <div class="test-image">
-            <p>Empty Source Image:</p>
-            <img src="" alt="Empty" style="width: 100px; height: 100px; background: #ddd; border: 1px solid #999;">
-        </div>
+        <div class="expect">The broken source should produce a <strong>failure</strong> notification stating the reason. The empty source should produce no outline at all.</div>
     </div>
 
     <script>
-        // Enable debug mode automatically for testing
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🧪 Test page loaded - Extension should initialize');
-            console.log('📋 Test images available:', document.querySelectorAll('img').length);
-            
-            // Try to enable debug mode if extension is loaded
-            setTimeout(() => {
-                if (window.ImageDownloader) {
-                    console.log('✅ Extension detected - debug mode should be enabled');
-                } else {
-                    console.log('❌ Extension not detected - check if it\'s loaded');
-                }
-            }, 1000);
+        // Same-origin SVG for Test 4, built as a blob so it isn't a data: URL.
+        const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='150' height='100'>"
+            + "<rect width='150' height='100' fill='%2300b894'/>"
+            + "<text x='75' y='55' text-anchor='middle' fill='white' font-family='Arial' font-size='14'>SVG FILE</text>"
+            + "</svg>";
+        document.getElementById('svg-blob').src =
+            URL.createObjectURL(new Blob([svg.replace(/%23/g, '#')], { type: 'image/svg+xml' }));
+
+        document.getElementById('test-link').addEventListener('click', () => {
+            const status = document.getElementById('link-status');
+            status.textContent = 'Link status: ✅ navigation fired (correct for a plain click)';
+            status.style.color = '#00b894';
         });
+
+        console.log('🧪 Nab test page loaded');
+        console.log('📋 Images on page:', document.querySelectorAll('img').length);
+        setTimeout(() => {
+            const loaded = document.querySelector('#nab-styles');
+            console.log(loaded ? '✅ Nab detected' : '❌ Nab not detected — is it loaded and did you reload this page?');
+        }, 500);
     </script>
 </body>
-</html> 
+</html>
