@@ -12,6 +12,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/theinstantwin/nab/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/theinstantwin/nab/test.yml?branch=main&label=tests&style=flat" alt="Tests"></a>
   <a href="https://chromewebstore.google.com/detail/nab/fgigkcbgndamdemjdbhemgndlpmamjje"><img src="https://img.shields.io/chrome-web-store/v/fgigkcbgndamdemjdbhemgndlpmamjje?label=chrome%20web%20store&style=flat" alt="Chrome Web Store version"></a>
   <a href="https://github.com/theinstantwin/nab/releases/latest"><img src="https://img.shields.io/github/v/release/theinstantwin/nab?label=release&style=flat" alt="Latest release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/theinstantwin/nab?style=flat" alt="License"></a>
@@ -54,13 +55,17 @@ Install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/
 
 No build step, no dependencies. To run it from source, which takes about a minute:
 
-1. Download [**nab-2.1.0.zip**](https://github.com/theinstantwin/nab/releases/latest) and unzip it. Keep the folder somewhere permanent. Chrome loads the extension from it, so deleting it uninstalls Nab.
+1. Download the [**latest ZIP**](https://github.com/theinstantwin/nab/releases/latest) and unzip it. Keep the folder somewhere permanent. Chrome loads the extension from it, so deleting it uninstalls Nab.
 2. Open a new tab and go to `chrome://extensions`
 3. Turn on the **Developer mode** toggle
 4. Click **Load unpacked** and pick the unzipped folder
 5. Nab appears in your extensions list. Reload any tabs you already had open.
 
 To update later, download the newer ZIP, replace the folder's contents, and click the refresh icon on Nab's card at `chrome://extensions`.
+
+The tests need Node 22 or later and nothing else:
+
+    node --test   # filenames and image detection
 
 ## About that permission warning
 
@@ -72,7 +77,7 @@ The alternative would be making you click a toolbar button on every page before 
 
 ## Contributing
 
-Issues and pull requests are welcome.
+Issues and pull requests are welcome. Run the tests before you open a pull request.
 
 ## License
 
