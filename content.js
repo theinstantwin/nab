@@ -5,7 +5,7 @@
  * content scripts can't save cross-origin images.
  */
 
-// Colors live in the stylesheet below, not here — see --nab-accent/--nab-success.
+// Colors live in content.css, not here: see --nab-accent/--nab-success.
 const CONFIG = {
   minDragDistance: 50,
   notificationDuration: 3000
@@ -18,7 +18,6 @@ class ImageDownloader {
     this.outline = null;
     this.suppressNextClick = false;
 
-    this.injectStyles();
     this.bindEvents();
   }
 
@@ -183,89 +182,6 @@ class ImageDownloader {
       notification.classList.remove('nab-notification--show');
       setTimeout(() => notification.remove(), 300);
     }, CONFIG.notificationDuration);
-  }
-
-  injectStyles() {
-    if (document.querySelector('#nab-styles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'nab-styles';
-    style.textContent = `
-      /*
-       * Every color Nab uses is defined once, here. The drag handler writes
-       * only --nab-glow; crossing the threshold just adds --ready, which
-       * repoints --nab-active at the success color.
-       */
-      .nab-outline {
-        --nab-accent: 33, 150, 243;
-        --nab-success: 76, 175, 80;
-        --nab-active: var(--nab-accent);
-        --nab-glow: 0px;
-
-        position: fixed;
-        border: 2px solid rgb(var(--nab-active));
-        box-shadow: 0 0 0 var(--nab-glow) rgba(var(--nab-active), 0.3);
-        border-radius: 4px;
-        box-sizing: border-box;
-        pointer-events: none;
-        z-index: 2147483647;
-        transition: border-color 0.1s ease, box-shadow 0.1s ease;
-      }
-
-      .nab-outline--ready {
-        --nab-active: var(--nab-success);
-      }
-
-      @keyframes nab-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(var(--nab-success), 0.7); }
-        70% { box-shadow: 0 0 0 15px rgba(var(--nab-success), 0); }
-        100% { box-shadow: 0 0 0 0 rgba(var(--nab-success), 0); }
-      }
-
-      .nab-checkmark {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        background: rgba(var(--nab-success), 0.9);
-        border-radius: 50%;
-        padding: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: nab-checkmark-appear 0.5s ease forwards;
-      }
-
-      @keyframes nab-checkmark-appear {
-        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-        50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      }
-
-      .nab-notification {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: rgba(0, 0, 0, 0.9);
-        color: white;
-        padding: 12px 16px;
-        border-radius: 6px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        z-index: 2147483647;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.3s cubic-bezier(0.2, 0, 0.38, 0.9), transform 0.3s cubic-bezier(0.2, 0, 0.38, 0.9);
-        max-width: 300px;
-      }
-
-      .nab-notification--show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    `;
-    document.head.appendChild(style);
   }
 }
 
