@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Nab",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Click and drag any image to download it instantly. Built for social media managers.",
   "author": "Matt DeSiena",
   "permissions": [
@@ -13,7 +13,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "js": ["lib.js", "content.js"],
       "run_at": "document_idle"
     }
   ],

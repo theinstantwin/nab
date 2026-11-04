@@ -7,12 +7,27 @@
  * download happens here and the content script just asks for it.
  */
 
+function startDownload(url, filename, respond) {
+  const options = filename ? { url, filename } : { url };
+
+  chrome.downloads.download(options, () => {
+    const error = chrome.runtime.lastError?.message;
+
+    // Chrome refuses some names outright, such as ones with a leading dot. Its
+    // own naming always works, so a bad name shouldn't cost the download.
+    if (error && filename) {
+      startDownload(url, undefined, respond);
+      return;
+    }
+
+    respond({ ok: !error, error });
+  });
+}
+
 chrome.runtime.onMessage.addListener((msg, _sender, respond) => {
   if (msg?.type !== 'nab-download') return;
 
-  chrome.downloads.download({ url: msg.url, filename: msg.filename }, id => {
-    respond({ ok: Boolean(id), error: chrome.runtime.lastError?.message });
-  });
+  startDownload(msg.url, msg.filename, respond);
 
   return true; // keep the message channel open for the async respond
 });

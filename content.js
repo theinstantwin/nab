@@ -26,13 +26,14 @@ class ImageDownloader {
     // Capture phase so we see the event before the page, but note we never
     // preventDefault here — that would swallow clicks on linked images.
     document.addEventListener('mousedown', this.handleMouseDown.bind(this), { capture: true, passive: true });
-    document.addEventListener('mousemove', this.handleMouseMove.bind(this), { passive: true });
-    document.addEventListener('mouseup', this.handleMouseUp.bind(this), { passive: true });
+    document.addEventListener('mousemove', this.handleMouseMove.bind(this), { capture: true, passive: true });
+    document.addEventListener('mouseup', this.handleMouseUp.bind(this), { capture: true, passive: true });
     document.addEventListener('keydown', this.handleKeyDown.bind(this), { passive: true });
+    window.addEventListener('blur', () => this.cancelDrag());
 
     // Suppressing the native ghost drag is the only default we need to cancel.
     document.addEventListener('dragstart', event => {
-      if (event.target?.tagName === 'IMG') event.preventDefault();
+      if (this.draggedImage) event.preventDefault();
     });
 
     // After a completed nab, stop a linked image from also navigating.
@@ -45,17 +46,26 @@ class ImageDownloader {
   }
 
   handleMouseDown(event) {
-    const target = event.target;
-    if (target?.tagName !== 'IMG') return;
-    if (!target.currentSrc && !target.src) return;
+    // Ctrl+click opens the context menu on a Mac, like a right click.
+    if (event.button !== 0 || event.ctrlKey) return;
 
-    this.draggedImage = target;
+    const image = imageFromStack(document.elementsFromPoint(event.clientX, event.clientY));
+    if (!image) return;
+
+    this.draggedImage = image;
     this.startPosition = { x: event.clientX, y: event.clientY };
-    this.createOutline(target);
+    this.createOutline(image);
   }
 
   handleMouseMove(event) {
     if (!this.draggedImage) return;
+
+    // A release outside the window never reaches us, so this is the first sign.
+    if (!(event.buttons & 1)) {
+      this.cancelDrag();
+      return;
+    }
+
     this.updateOutline(this.dragDistance(event));
   }
 
@@ -77,7 +87,10 @@ class ImageDownloader {
   }
 
   handleKeyDown(event) {
-    if (event.key !== 'Escape' || !this.draggedImage) return;
+    if (event.key === 'Escape') this.cancelDrag();
+  }
+
+  cancelDrag() {
     this.draggedImage = null;
     this.removeOutline();
   }
@@ -90,12 +103,12 @@ class ImageDownloader {
 
   async download(image) {
     const url = image.currentSrc || image.src;
-    const filename = this.filenameFor(url);
+    const filename = filenameFor(url);
 
     try {
       const result = await chrome.runtime.sendMessage({ type: 'nab-download', url, filename });
       if (result?.ok) {
-        this.showNotification(`✓ Downloading: ${filename}`);
+        this.showNotification(`✓ Downloading: ${filename ?? 'image'}`);
       } else {
         this.showNotification(`✗ Download failed: ${result?.error ?? 'unknown error'}`);
       }
@@ -105,31 +118,6 @@ class ImageDownloader {
       console.warn('[Nab] Download request failed:', error);
       this.showNotification('✗ Download failed — try reloading the page');
     }
-  }
-
-  filenameFor(url) {
-    // Untested: whether chrome.downloads accepts data: URLs at all — Chrome's
-    // docs don't say. If it rejects them, this branch is dead code.
-    if (url.startsWith('data:')) {
-      const mime = url.slice(5).split(/[;,]/)[0];
-      const subtype = mime.split('/')[1] || 'png';
-      return `image.${this.normalizeExtension(subtype)}`;
-    }
-
-    try {
-      // pathname excludes the query string, so there's nothing to strip after.
-      const name = new URL(url).pathname.split('/').pop() || 'image';
-      const safe = name.replace(/[^a-zA-Z0-9.-]/g, '_').slice(0, 100);
-      return safe.includes('.') ? safe : `${safe}.png`;
-    } catch {
-      return `image_${Date.now()}.png`;
-    }
-  }
-
-  normalizeExtension(subtype) {
-    if (subtype === 'jpeg') return 'jpg';
-    if (subtype === 'svg+xml') return 'svg';
-    return subtype.replace(/[^a-z0-9]/gi, '') || 'png';
   }
 
   createOutline(image) {
